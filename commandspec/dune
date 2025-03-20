@@ -1,0 +1,6 @@
+(library
+ (name commandspec)
+ (modules command parameter registry rawEntry entry)
+ (libraries logs fmt)
+ (preprocess
+  (pps ppx_jane ppx_deriving.show)))

@@ -1,0 +1,4 @@
+(executable
+ (public_name etop)
+ (name main)
+ (libraries commandspec re logs logs.fmt fmt tyre))
