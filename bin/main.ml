@@ -51,14 +51,14 @@ open Commandspec
 
 
 
-let opam = Command.make "opam" "opam manual"
-    |> Command.attachParameter (Parameter.make "version" "get opam version" ~longname:(Some "--version"))
-    |> Command.attachSubCommand (Command.make "switch" "list installed opam switches")
+let opam = Command.make "opam" "opam manual" Command.Blank
+    |> Command.attachOption (Option.make "version" "get opam version" ~longname:(Some "--version"))
+    |> Command.attachSubCommand (Command.make "switch" "list installed opam switches" Command.Blank)
     |> Command.makeBin "opam" "ocaml package manager";;
 
-let graphviz = Command.make "dot" "the dot interpreter"
-    |> Command.attachParameter (Parameter.make "version" "get graphviz version" ~shortname:(Some "-V"))
-    |> Command.attachParameter (Parameter.make "help" "print graphviz help" ~shortname:(Some "-?"))
+let graphviz = Command.make "dot" "the dot interpreter" Command.Blank
+    |> Command.attachOption (Option.make "version" "get graphviz version" ~shortname:(Some "-V"))
+    |> Command.attachOption (Option.make "help" "print graphviz help" ~shortname:(Some "-?"))
     |> Command.makeBin "graphviz" "the graphviz graph producer"
 
 let () = Fmt.pf Fmt.stdout "%a\n" Command.pp_bin opam;;

@@ -4,12 +4,14 @@ module StringMap = struct
   let pp _ _ _= ()
 end 
 
+type instantiable = None | Blank | OneTarget [@@deriving show]
+
 type t = {
   name: string;
   description: string;
   subCommands : t StringMap.t;
-  parameters: Parameter.t StringMap.t;
-  instantiable: bool
+  options: Option.t StringMap.t;
+  instantiable: instantiable
 } [@@deriving show]
 
 type bin = {
@@ -23,11 +25,11 @@ type commandDesc = {
   description: string;
 } [@@deriving show]
 
-let make ?(instantiable=true) name description = {
+let make name description instantiable= {
   name; 
   description; 
   subCommands=StringMap.empty; 
-  parameters=StringMap.empty; 
+  options=StringMap.empty; 
   instantiable
 }
 
@@ -41,15 +43,15 @@ let attachSubCommand (c:t) (root:t): t = {
   name=root.name;
   description=root.description;
   subCommands= StringMap.add c.name c root.subCommands;
-  parameters=root.parameters;
+  options=root.options;
   instantiable=root.instantiable
 }
 
-let attachParameter (p:Parameter.t) (c:t) = {
+let attachOption (o:Option.t) (c:t) = {
   name=c.name;
   description=c.description;
   subCommands=c.subCommands;
-  parameters = StringMap.add p.Parameter.id p c.parameters;
+  options = StringMap.add o.Option.id o c.options;
   instantiable=c.instantiable
 }
 
@@ -57,9 +59,9 @@ let getDirectSubCommandsFromCommand c =
   StringMap.bindings c.subCommands |> List.map (fun (_, c: string*t) -> {name=c.name; description=c.description})
 
 let getAllVariantOfCommand (path:string) (c:t) =
-  let variants = c.parameters
+  let variants = c.options
   |> StringMap.bindings
-  |> List.map (fun (_,parameter) -> let s = Parameter.getSummary parameter in {name=path^" "^s.encoding;description=s.description})
+  |> List.map (fun (_,option) -> let s = Option.getSummary option in {name=path^" "^s.encoding;description=s.description})
   in
   {name=path;description=c.description}::variants
 
@@ -70,7 +72,7 @@ let rec getAllSubCommandsRec (path:string) (c:t) =
   |> List.map (fun (name,subcommand) -> getAllSubCommandsRec (path ^" "^name) subcommand)
   |> List.concat
   in
-  if c.instantiable then (getAllVariantOfCommand path c) @ subCommands else subCommands
+  if c.instantiable <> None then (getAllVariantOfCommand path c) @ subCommands else subCommands
 
 
 let getAllSubCommands (b:bin) =
