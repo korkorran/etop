@@ -1,28 +1,19 @@
 
+module StringMap = struct
+  include Map.Make(String)
+  let pp _ _ _= ()
+end 
 
 type t = {
-  id : string;
-  shortname: string option;
-  longname : string option;
-  description : string;
-} [@@deriving show]
-
-type summary = {
-  encoding: string;
-  description: string
+  tokens : Token.t list;
+  id: string
 }
 
-let make ?(shortname=None) ?(longname=None) id description = 
-  match shortname, longname with None,None -> failwith "at least one name for parameter should be provided" | _, _->
-  {
-    id;
-    shortname;
-    longname;
-    description
-  }
+type options = t list StringMap.t
 
-let getSummary (p:t) =
-  match p.shortname,p.longname with
-  | Some s,_ -> {encoding=s; description=p.description}
-  | _, Some l -> {encoding=l; description=p.description}
-  | _,_ -> failwith "no encoding recognized"
+let makeEmptyOptions () : options = StringMap.empty
+
+let pp fmt option = 
+  Format.fprintf fmt "{%s:%a}" option.id (Fmt.list Token.pp) option.tokens
+
+let pp_options : options Fmt.t = StringMap.pp pp

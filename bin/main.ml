@@ -51,17 +51,17 @@ open Commandspec
 
 
 
-let opam = Command.make "opam" "opam manual" Command.Blank
-    |> Command.attachOption (Option.make "version" "get opam version" ~longname:(Some "--version"))
-    |> Command.attachSubCommand (Command.make "switch" "list installed opam switches" Command.Blank)
-    |> Command.makeBin "opam" "ocaml package manager";;
+let opam = CommandSpec.make "opam" "opam manual" CommandSpec.Blank
+    |> CommandSpec.attachOption (OptionSpec.make "version" "get opam version" ["--version"])
+    |> CommandSpec.attachSubCommand (CommandSpec.make "switch" "list installed opam switches" CommandSpec.Blank)
+    |> BinSpec.make "opam" "ocaml package manager";;
 
-let graphviz = Command.make "dot" "the dot interpreter" Command.Blank
-    |> Command.attachOption (Option.make "version" "get graphviz version" ~shortname:(Some "-V"))
-    |> Command.attachOption (Option.make "help" "print graphviz help" ~shortname:(Some "-?"))
-    |> Command.makeBin "graphviz" "the graphviz graph producer"
+let graphviz = CommandSpec.make "dot" "the dot interpreter" CommandSpec.Blank
+    |> CommandSpec.attachOption (OptionSpec.make "version" "get graphviz version" ["-V"])
+    |> CommandSpec.attachOption (OptionSpec.make "help" "print graphviz help" ["-?"])
+    |> BinSpec.make "graphviz" "the graphviz graph producer"
 
-let () = Fmt.pf Fmt.stdout "%a\n" Command.pp_bin opam;;
+let () = Fmt.pf Fmt.stdout "%a\n" BinSpec.pp opam;;
 
 (* let subCommands = Command.getAllSubCommands graphviz;;
 
@@ -69,19 +69,19 @@ List.iter (fun c ->
     Logs.info (fun m -> m "subCommand : %s <> %s" c.Command.name c.description)
 ) subCommands;; *)
 
-let registry = [opam;graphviz]
+let registry = Registry.make [opam;graphviz]
 
 let rawCommand = "opam switch"
 (* 
 let pp_string = Fmt.styled (`Fg `Blue) Fmt.string
 let () = Fmt.pf Fmt.stdout "%a" pp_string "456" *)
 
-let bin = Registry.findBin registry rawCommand
-let () = match bin with
-  | None -> Logs.info (fun m -> m "command <%a> not found in registry" RawEntry.pp_t rawCommand)
-  | Some b -> Logs.info (fun m -> m "command <%a> found in registry : %a" RawEntry.pp_t rawCommand Command.pp_bin b);
-        let parsed = Entry.parse b rawCommand in
-        Fmt.pf Fmt.stdout "%a\n" Entry.pp_t parsed
+let binOpt = Registry.findBinbyRawCommand registry rawCommand
+let () = match binOpt with
+  | None -> Logs.info (fun m -> m "command <%s> not found in registry" rawCommand)
+  | Some b -> Logs.info (fun m -> m "command <%s> found in registry : %a" rawCommand BinSpec.pp b);
+        let parsed = Command.parseCommand b.BinSpec.command @@ Token.parseIntoTokens rawCommand in
+        Fmt.pf Fmt.stdout "%a\n" Command.pp parsed
 
 let dim = Tyre.( str"dim:" *> int <&> str"x" *> int ) ;;
 let dim_re = Tyre.compile dim ;;

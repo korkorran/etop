@@ -1,6 +1,6 @@
 (library
  (name commandspec)
- (modules command option registry rawEntry entry)
+ (modules commandSpec command optionSpec option registry token binSpec)
  (libraries logs fmt)
  (preprocess
-  (pps ppx_jane ppx_deriving.show)))
+  (pps ppx_deriving.show)))
