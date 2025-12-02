@@ -51,12 +51,12 @@ open Commandspec
 
 
 
-let opam = CommandSpec.make "opam" "opam manual" CommandSpec.Blank
+let opam = CommandSpec.make "opam" "opam manual" (CommandSpec.Instantiable Producer)
     |> CommandSpec.attachOption (OptionSpec.make "version" "get opam version" ["--version"])
-    |> CommandSpec.attachSubCommand (CommandSpec.make "switch" "list installed opam switches" CommandSpec.Blank)
+    |> CommandSpec.attachSubCommand (CommandSpec.make "switch" "list installed opam switches" (CommandSpec.Instantiable Manager))
     |> BinSpec.make "opam" "ocaml package manager";;
 
-let graphviz = CommandSpec.make "dot" "the dot interpreter" CommandSpec.Blank
+let graphviz = CommandSpec.make "dot" "the dot interpreter" (CommandSpec.Instantiable Producer)
     |> CommandSpec.attachOption (OptionSpec.make "version" "get graphviz version" ["-V"])
     |> CommandSpec.attachOption (OptionSpec.make "help" "print graphviz help" ["-?"])
     |> BinSpec.make "graphviz" "the graphviz graph producer"

@@ -4,7 +4,9 @@ module StringMap = struct
   let pp _ _ _= ()
 end 
 
-type instantiable = None | Blank | OneTarget [@@deriving show]
+type nature = Manager | Producer [@@deriving show]
+
+type instantiable = None | Shortener of string list | Instantiable of nature [@@deriving show]
 
 type t = {
   name: string;
